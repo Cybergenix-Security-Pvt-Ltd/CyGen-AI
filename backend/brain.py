@@ -1,7 +1,6 @@
 import sys
 from typing import List
 
-import cohere
 from ollama import chat
 from ollama import ChatResponse
 
