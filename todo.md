@@ -1,12 +1,9 @@
 # TASKS
-- Reminder -> bg invokation
-- Vision
 - System services Handler
+
 - Image Generation
+- Vision
+- Reminder -> bg invokation
+
 - UI
 - Main Handler
-
-
-- reminder -> bg invokation
-- generate image
-- content -> use codegen llm as chat extension

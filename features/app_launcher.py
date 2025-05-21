@@ -20,8 +20,6 @@ class AppLauncher(Base):
     def play_music(self, query: str):
         os.system(f"yt-dlp 'ytsearch:{query}'")
 
-    def reminder(self):...
-
     def close(self, application: str) -> None:
         pid = os.system(f"pgrep {application}")
         os.system(f"kill {pid}")
