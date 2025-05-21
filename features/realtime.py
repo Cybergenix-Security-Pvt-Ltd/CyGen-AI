@@ -1,19 +1,30 @@
+from features.base import Base
+
 from ollama import chat
 from ollama import ChatResponse
-from .base import Base
-
-
-
+from googlesearch import search
 
 class Chat(Base):
-    def __init__(self, username: str) -> None:
+    def __init__(self, username: str, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
         self.username = username
         self.chat_history = []
 
-    def check_trigger(self, query: str) -> bool:
-        if query.startswith("general"):
+    def check_trigger(self) -> bool:
+        if self.query.startswith("realtime"):
             return True
         return False
+
+    def google_search(self, query: str) -> str | None:
+        results = list(search(query, advanced=True, num_results=5))
+        answer = f"The search result for '{query}' are:\n [start]\n"
+        for i in results:
+            if isinstance(i, str): continue
+            answer += f"Title: {i.title}\nDescription: {i.description}\n\n"
+
+        answer += "[end]"
+        answer.strip().replace("</s>", "")
+        return answer
 
     def chat(self, query: str) -> str | None:
         sys_prompt = [{"role": "system", "content" : f"""Hello, I am {self.username}, You are a very accurate and advanced AI chatbot named Cygen which also has real-time up-to-date information from the internet.
@@ -26,7 +37,9 @@ class Chat(Base):
             "role": "user",
             "content": query
             })
+        self.chat_history.append({"role": "system", "content": self.google_search(query)})
         response: ChatResponse = chat(model="llama3.2:1b", messages=sys_prompt + self.chat_history)
+        self.chat_history.pop()
 
         if not response.message.content: return None
 
@@ -38,6 +51,7 @@ class Chat(Base):
             }
         )
 
+        response.message.content = response.message.content.replace("<|start_header_id|>assistant<|end_header_id|>", "").strip()
         return response.message.content
 
 
@@ -50,3 +64,4 @@ def cli():
 
 if __name__ == "__main__":
     cli()
+
