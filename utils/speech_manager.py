@@ -2,12 +2,12 @@ import speech_recognition as sr
 import os
 import requests
 
-def speech_recognition():
+def speech_recognition() -> str | None:
     while True:
         r = sr.Recognizer()
         with sr.Microphone() as source:
-            r.pause_threshold = 5
-            r.phrase_threshold = 5
+            r.pause_threshold = 1
+            r.phrase_threshold = 1
             audio = r.listen(source)
             try:
                 print("Cygen is Recognizing...")

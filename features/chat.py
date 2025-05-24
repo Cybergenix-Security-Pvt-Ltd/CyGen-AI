@@ -8,8 +8,8 @@ class Chat(Base):
         self.username = username
         self.chat_history = []
 
-    def check_trigger(self) -> bool:
-        if self.query.startswith("general"):
+    def check_trigger(self, query: str) -> bool:
+        if query.startswith("general"):
             return True
         return False
 

@@ -5,8 +5,8 @@ import json
 
 
 class Reminder(Base):
-    def check_trigger(self) -> bool:
-        if self.query.startswith('reminder'):
+    def check_trigger(self, query: str) -> bool:
+        if query.startswith('reminder'):
             return True
         return False
 

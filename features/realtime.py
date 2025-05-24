@@ -4,14 +4,13 @@ from ollama import chat
 from ollama import ChatResponse
 from googlesearch import search
 
-class Chat(Base):
-    def __init__(self, username: str, *args, **kwargs) -> None:
-        super().__init__(*args, **kwargs)
+class RealChat(Base):
+    def __init__(self, username: str) -> None:
         self.username = username
         self.chat_history = []
 
-    def check_trigger(self) -> bool:
-        if self.query.startswith("realtime"):
+    def check_trigger(self, query: str) -> bool:
+        if query.startswith("realtime"):
             return True
         return False
 
@@ -56,7 +55,7 @@ class Chat(Base):
 
 
 def cli():
-    chatbot = Chat('MyName')
+    chatbot = RealChat('MyName')
     while True:
         query = input("You: ")
         print(chatbot.chat(query))

@@ -6,8 +6,8 @@ from features.base import Base
 
 
 class ImageManager(Base):
-    def check_trigger(self) -> bool:
-        if self.query.startswith(("generate image", "vision")):
+    def check_trigger(self, query: str) -> bool:
+        if query.startswith(("generate image", "vision")):
             return True
         return False
 
@@ -23,7 +23,7 @@ class ImageManager(Base):
             return digest.response.strip()
 
 def cli():
-    im = ImageManager("vision what do you see")
+    im = ImageManager()
     print(im.read_img(Path('/home/knownblackhat/Downloads/computational.png'), "what do you see"))
 
 

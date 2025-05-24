@@ -1,11 +1,13 @@
-from features.base import Base
+import subprocess
 import os
+
+from features.base import Base
 
 
 class AppLauncher(Base):
 
-    def check_trigger(self) -> bool:
-        if self.query.startswith(("google search", "youtube", "play")):
+    def check_trigger(self, query: str) -> bool:
+        if query.startswith(("google search", "youtube search", "play", "open", "close")):
             return True
         return False
 
@@ -21,7 +23,7 @@ class AppLauncher(Base):
         os.system(f"yt-dlp 'ytsearch:{query}'")
 
     def close(self, application: str) -> None:
-        pid = os.system(f"pgrep {application}")
+        pid = subprocess.run(f"pgrep {application}", capture_output=True, text=True, shell=True)
         os.system(f"kill {pid}")
 
     def open(self, application: str) -> None:
@@ -29,4 +31,3 @@ class AppLauncher(Base):
             os.system(f"firefox '{application}'")
         else:
             os.system(application)
-
