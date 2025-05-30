@@ -86,7 +86,7 @@ def classify(query: str) -> List[str] | None:
         tasks = classify(query)
 
     if tasks:
-        tasks = [task.strip("()") for task in tasks]
+        tasks = [task.replace('(', '').replace(')', '') for task in tasks]
 
     return tasks
 

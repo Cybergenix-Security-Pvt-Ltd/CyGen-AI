@@ -1,6 +1,13 @@
-import speech_recognition as sr
 import os
+
+import speech_recognition as sr
 import requests
+
+from elevenlabs.client import ElevenLabs
+from elevenlabs import play
+
+client = ElevenLabs(api_key='sk_56d9b4bc64d01bc6c5257803f3158a37e0261992772e6475')
+
 
 def speech_recognition() -> str | None:
     while True:
@@ -20,6 +27,7 @@ def speech_recognition() -> str | None:
 
 def speak(content: str) -> None:
     print("Cygen Ai: ", content)
+    content = f"ummmm, {content}"
     lines = content.split(".")
     voiceID = 'p364'
     text = "mpv --terminal=no --really-quiet"
@@ -31,6 +39,16 @@ def speak(content: str) -> None:
     text += "&> /dev/null"
 
     os.system(text)
+
+def speak_v2(content: str) -> None:
+    print(content)
+    audio = client.generate(
+        text=content,
+        voice="Adam",  # Choose your preferred voice
+        model="eleven_monolingual_v1"
+    )
+    print("Cygen Ai: ", content)
+    play(audio)
 
 
 

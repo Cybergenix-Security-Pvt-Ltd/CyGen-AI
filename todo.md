@@ -3,3 +3,7 @@
 - UI
 
 
+# ISSUES
+- Voice initial words skip in audio file
+
+
