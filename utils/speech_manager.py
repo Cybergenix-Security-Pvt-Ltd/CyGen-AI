@@ -14,7 +14,7 @@ def speech_recognition() -> str | None:
         r = sr.Recognizer()
         with sr.Microphone() as source:
             r.pause_threshold = 1
-            r.phrase_threshold = 1
+            r.energy_threshold = 50
             audio = r.listen(source)
             try:
                 print("Cygen is Recognizing...")

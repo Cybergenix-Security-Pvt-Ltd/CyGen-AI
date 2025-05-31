@@ -10,6 +10,12 @@ funcs = [
     "youtube search", "reminder"
         ]
 
+def pre_classifier(query: str) -> List[str] | None:
+    if query.startswith("play"):
+        return ["play" + query]
+    elif query.startswith("search"):
+        return ["google search"]
+
 chat_history = [
         {"role":"User", "message": "how are you?"},
         {"role":"Chatbot", "message": "general how are you?"},

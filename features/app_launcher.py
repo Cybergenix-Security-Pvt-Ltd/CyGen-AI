@@ -23,11 +23,13 @@ class AppLauncher(Base):
         os.system(f"yt-dlp 'ytsearch:{query}'")
 
     def close(self, application: str) -> None:
-        pid = subprocess.run(f"pgrep {application}", capture_output=True, text=True, shell=True)
+        pid = subprocess.run(f"pgrep {application}", capture_output=True, text=True, shell=True).stdout.replace('\n', ' ')
         os.system(f"kill {pid}")
 
     def open(self, application: str) -> None:
         if application.startswith((".com", ".io", ".app", ".net")):
-            os.system(f"firefox '{application}'")
+            os.system(f"firefox '{application}' &")
         else:
-            os.system(application)
+            exit_code = os.system(application + "&")
+            if exit_code != 0:
+                os.system(f"firefox '{application}' &")

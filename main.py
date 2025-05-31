@@ -1,4 +1,5 @@
 from pathlib import Path
+import logging
 from typing import List
 
 import cv2
@@ -12,10 +13,29 @@ from features.realtime import RealChat
 from features.app_launcher import AppLauncher
 from features.reminder import Reminder
 from features.image_manager import ImageManager
+from utils.eelinterface import EELInterface
 
 USERNAME = "Tejas"
+chat = Chat(USERNAME)
+realchat = RealChat(USERNAME)
+system = System()
+app_launcher = AppLauncher()
+reminder = Reminder()
+image_manager = ImageManager()
 
-eel.init("web")
+
+logging.basicConfig(
+    level=logging.INFO, format="%(module)s %(funcName)s [%(levelname)s] %(message)s"
+)
+
+logger = logging.Logger(__name__)
+logging.getLogger("eel").addHandler(logging.NullHandler())
+
+
+eel.init(
+        "webui/build",
+         [".tsx", ".ts", ".jsx", ".js", ".html", ".svelte"]
+         )
 
 def listen() -> str:
     data = speech_recognition()
@@ -56,7 +76,45 @@ def get_image() -> Path:
     cam.release()
     return Path('./captured_image.jpg')
 
+@eel.expose
+def send_command(command):
+    # Process manual commands from UI
+    tags = classify(command) or []
+    if not tags:
+        return "Sorry, I didn't understand that command."
+    stag = sanitize(tags[0]) if tags else command
+    # Reuse logic from main() for each feature
+    # Example for chat:
+    if chat.check_trigger(tags[0]):
+        return chat.chat(stag) or "I have no answer!!"
+    # Add similar checks for other features
+    return "Command processed."
+
+@eel.expose
+def capture_image():
+    try:
+        img_path = get_image()
+        return image_manager.read_img(img_path, "analyze")
+    except Exception as e:
+        return f"Error capturing image: {e}"
+
+
+@eel.expose
+def set_reminder(reminder_text):
+    reminder.set_reminder(reminder_text)
+    return f"Reminder added of {reminder_text}"
+
+@eel.expose
+def classify_web(query: str):
+    tags = classify(query)
+
+
 def main():
+    EELInterface().expose()
+    eel.start("", port=8888)
+
+
+def main_v1():
     chat = Chat(USERNAME)
     realchat = RealChat(USERNAME)
     system = System()
@@ -64,87 +122,9 @@ def main():
     reminder = Reminder()
     image_manager = ImageManager()
 
-    import eel
-
-    @eel.expose
-    def send_command(command):
-        # Process manual commands from UI
-        tags = classify(command) or []
-        if not tags:
-            return "Sorry, I didn't understand that command."
-        stag = sanitize(tags[0]) if tags else command
-        # Reuse logic from main() for each feature
-        # Example for chat:
-        if chat.check_trigger(tags[0]):
-            return chat.chat(stag) or "I have no answer!!"
-        # Add similar checks for other features
-        return "Command processed."
-
-    @eel.expose
-    def get_response():
-        # Return the last spoken response (you may need to store it in a global variable)
-        return "Assistant response"
-
-    @eel.expose
-    def capture_image():
-        try:
-            img_path = get_image()
-            return image_manager.read_img(img_path, "analyze")
-        except Exception as e:
-            return f"Error capturing image: {e}"
-
-    @eel.expose
-    def mute_system():
-        system.mute()
-        return "System Muted"
-
-    @eel.expose
-    def unmute_system():
-        system.unmute()
-        return "System Unmuted"
-
-    @eel.expose
-    def set_volume_up():
-        system.volume_up()
-        return "Increased the volume!!"
-
-    @eel.expose
-    def set_volume_down():
-        system.volume_down()
-        return "Decreased the volume!!"
-
-    @eel.expose
-    def open_app(app_name):
-        app_launcher.open(app_name)
-        return f"Launched {app_name}"
-
-    @eel.expose
-    def close_app(app_name):
-        app_launcher.close(app_name)
-        return f"Closed {app_name}"
-
-    @eel.expose
-    def google_search(query):
-        app_launcher.gsearch(query)
-        return f"Your search for {query} result is ready on screen"
-
-    @eel.expose
-    def youtube_search(query):
-        app_launcher.ytsearch(query)
-        return "Your YouTube search result is ready on screen"
-
-    @eel.expose
-    def play_music(query):
-        app_launcher.play_music(query)
-        return f"Playing {query}"
-
-    @eel.expose
-    def set_reminder(reminder_text):
-        reminder.set_reminder(reminder_text)
-        return f"Reminder added of {reminder_text}"
-    eel.start("./main.html")
     while True:
-        data = listen()
+        # data = listen()
+        data = input("INPUT: ")
         print(f"Classifying started")
         tags = classify(data)
         if not tags: return None
