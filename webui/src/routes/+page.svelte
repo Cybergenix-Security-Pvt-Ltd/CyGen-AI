@@ -18,25 +18,25 @@
 		<div class="flex justify-between ">
 			<div>
 				<button
-					class="bg-red-500 rounded-md m-4 p-2 text-white"
+					class="bg-black border-white border rounded-md m-4 p-2 text-white"
 					on:click={() => eel?.mute_system()()}
 				>
 					Mute
 				</button>
 				<button
-					class="bg-green-500 rounded-md m-4 p-2 text-white"
+					class="bg-black border-white border rounded-md m-4 p-2 text-white"
 					on:click={() => eel?.unmute_system()()}
 				>
 					Unmute
 				</button>
 				<button
-					class="bg-blue-500 rounded-md m-4 p-2 text-white"
+					class="bg-black border-white border rounded-md m-4 p-2 text-white"
 					on:click={() => eel?.set_volume_up()()}
 				>
 					Volume Up
 				</button>
 				<button
-					class="bg-yellow-500 rounded-md m-4 p-2 text-white"
+					class="bg-black border-white border rounded-md m-4 p-2 text-white"
 					on:click={() => eel?.set_volume_down()()}
 				>
 					Volume Down
@@ -45,7 +45,7 @@
 			<div>
 				<input
 					placeholder="Enter command"
-					class="bg-gray-200 rounded-md m-4 p-2 text-black"
+					class="bg-black border-white border rounded-md m-4 p-2 text-black"
 					bind:value={input_value}
 					on:keydown={(e) => {
 						if (e.key === 'Enter') {
@@ -59,7 +59,7 @@
 			</div>
 			<div class="grid grid-cols-3">
 				<button
-					class="bg-purple-500 rounded-md m-4 p-2 text-white"
+					class="bg-black border-white border rounded-md m-4 p-2 text-white"
 					on:click={() => {
 						eel?.llm_chat(input_value)();
 						input_value = '';
@@ -68,7 +68,7 @@
 					Ask llm
 				</button>
 				<button
-					class="bg-orange-500 rounded-md m-4 p-2 text-white"
+					class="bg-black border-white border rounded-md m-4 p-2 text-white"
 					on:click={() => {
 						eel?.realtime_chat(input_value)();
 					}}
@@ -76,7 +76,7 @@
 					Ask Real time llm
 				</button>
 				<button
-					class="bg-green-500 rounded-md m-4 p-2 text-white"
+					class="bg-black border-white border rounded-md m-4 p-2 text-white"
 					on:click={() => {
 						eel?.open_app(input_value)();
 					}}
@@ -85,7 +85,7 @@
 				</button>
 
 				<button
-					class="bg-red-500 rounded-md m-4 p-2 text-white"
+					class="bg-black border-white border rounded-md m-4 p-2 text-white"
 					on:click={() => {
 						eel?.close_app(input_value)();
 					}}
@@ -94,7 +94,7 @@
 				</button>
 
 				<button
-					class="bg-blue-500 rounded-md m-4 p-2 text-white"
+					class="bg-black border-white border rounded-md m-4 p-2 text-white"
 					on:click={() => {
 						eel?.google_search(input_value)();
 					}}
@@ -102,7 +102,7 @@
 					Google Search
 				</button>
 				<button
-					class="bg-purple-500 rounded-md m-4 p-2 text-white"
+					class="bg-black border-white border rounded-md m-4 p-2 text-white"
 					on:click={() => {
 						eel?.youtube_search(input_value)();
 					}}
@@ -110,7 +110,7 @@
 					YouTube Search
 				</button>
 				<button
-					class="bg-yellow-500 rounded-md m-4 p-2 text-white"
+					class="bg-black border-white border rounded-md m-4 p-2 text-white"
 					on:click={() => {
 						eel?.play_music(input_value)();
 					}}
