@@ -1,6 +1,9 @@
 <script lang="ts">
 	let eel = window.eel;
+	let WAKE_WORD = ['cygen', 'sajan', 'sizon', 'sahjan', 'silent'];
 	let input_value = '';
+	$: interaction = '';
+	$: eel?.web_speak(interaction)();
 	eel?.set_host('ws://localhost:8888');
 	import { Application } from '@splinetool/runtime';
 	import { onMount } from 'svelte';
@@ -10,13 +13,74 @@
 		const app = new Application(canvas);
 		app.load('https://prod.spline.design/NNfGHj4gsBiVtyuU/scene.splinecode');
 	});
+
+	const speechRecon = () => {
+		let speech = '';
+		const recApi = window?.webkitSpeechRecognition || window?.SpeechRecognition;
+
+		recApi ? null : alert("SpeechRecognition won't work for you");
+
+		window.rec = new recApi();
+		window.rec.lang = 'en-IN';
+		// rec.continuous = true;
+		window.rec.interimResults = true;
+
+		window.rec.onresult = (e) => {
+			speech = Array.from(e.results)
+				.map((result) => result[0].transcript)
+				.join('');
+			console.log(speech);
+		};
+
+		window.rec.start();
+
+		window.rec.addEventListener('end', async () => {
+			if (WAKE_WORD.some((word) => speech.toLowerCase().includes(word))) {
+				console.log('wake word triggered', speech);
+				speech = speech
+					.split(' ')
+					.filter((word) => !WAKE_WORD.includes(word.toLowerCase()))
+					.join(' ')
+					.trim();
+				window.rec.stop();
+				if (speech) {
+					interaction = await eel.ask(speech.toLowerCase())();
+					speech = '';
+					window.rec.start();
+				}
+			} else {
+				window.rec.start();
+			}
+		});
+	};
 </script>
 
-<div class="absolute left-0 right-0 text-center opacity-90">
+<div class="inset-0  text-center opacity-90">
 	<div class="relative">
-		<canvas id="canvas3d" />
-		<div class="flex justify-between ">
+		<div
+			id="main"
+			class="flex items-center justify-center border-b border-blue-700 shadow-blue-600 shadow-md"
+		>
+			<div class="relative w-[96%]">
+				<canvas id="canvas3d" />
+				{#if interaction}
+					<div
+						class="absolute bottom-5 left-0 right-0 bg-black/30 p-2 rounded-lg text-white text-center"
+					>
+						{interaction}
+					</div>
+				{/if}
+			</div>
+		</div>
+
+		<div id="lower_button" class="flex justify-around w-screen ">
 			<div>
+				<button
+					class="bg-black border-white border rounded-md m-4 p-2 text-white"
+					on:click={speechRecon}
+				>
+					Listen
+				</button>
 				<button
 					class="bg-black border-white border rounded-md m-4 p-2 text-white"
 					on:click={() => eel?.mute_system()()}
@@ -43,25 +107,33 @@
 				</button>
 			</div>
 			<div>
-				<input
-					placeholder="Enter command"
-					class="bg-black border-white border rounded-md m-4 p-2 text-black"
-					bind:value={input_value}
-					on:keydown={(e) => {
-						if (e.key === 'Enter') {
-							// @ts-expect-error html element
-							eel?.send_command(e.target.value)();
-							// @ts-expect-error html element
-							e.target.value = '';
-						}
-					}}
-				/>
+				<div class="flex">
+					<input
+						placeholder="Enter command"
+						class="bg-black border-white border rounded-md m-4 p-2 text-white"
+						bind:value={input_value}
+						on:keydown={async (e) => {
+							if (e.key === 'Enter') {
+								// @ts-expect-error html element
+								interaction = await eel?.ask(e.target.value)();
+								// interaction_logs = [...interaction_logs, out];
+								input_value = '';
+							}
+						}}
+					/>
+					<button
+						class="bg-black border-white border rounded-md m-4 p-2 text-white"
+						on:click={async () => (interaction = await eel?.ask(input_value)())}
+					>
+						Send
+					</button>
+				</div>
 			</div>
-			<div class="grid grid-cols-3">
+			<div class="grid grid-cols-4">
 				<button
 					class="bg-black border-white border rounded-md m-4 p-2 text-white"
-					on:click={() => {
-						eel?.llm_chat(input_value)();
+					on:click={async () => {
+						await eel?.llm_chat(input_value)();
 						input_value = '';
 					}}
 				>
@@ -69,16 +141,16 @@
 				</button>
 				<button
 					class="bg-black border-white border rounded-md m-4 p-2 text-white"
-					on:click={() => {
-						eel?.realtime_chat(input_value)();
+					on:click={async () => {
+						interaction = await eel?.realtime_chat(input_value)();
 					}}
 				>
 					Ask Real time llm
 				</button>
 				<button
 					class="bg-black border-white border rounded-md m-4 p-2 text-white"
-					on:click={() => {
-						eel?.open_app(input_value)();
+					on:click={async () => {
+						interaction = await eel?.open_app(input_value)();
 					}}
 				>
 					Open
@@ -86,8 +158,8 @@
 
 				<button
 					class="bg-black border-white border rounded-md m-4 p-2 text-white"
-					on:click={() => {
-						eel?.close_app(input_value)();
+					on:click={async () => {
+						interaction = await eel?.close_app(input_value)();
 					}}
 				>
 					Close
@@ -95,24 +167,24 @@
 
 				<button
 					class="bg-black border-white border rounded-md m-4 p-2 text-white"
-					on:click={() => {
-						eel?.google_search(input_value)();
+					on:click={async () => {
+						interaction = await eel?.google_search(input_value)();
 					}}
 				>
 					Google Search
 				</button>
 				<button
 					class="bg-black border-white border rounded-md m-4 p-2 text-white"
-					on:click={() => {
-						eel?.youtube_search(input_value)();
+					on:click={async () => {
+						interaction = await eel?.youtube_search(input_value)();
 					}}
 				>
 					YouTube Search
 				</button>
 				<button
 					class="bg-black border-white border rounded-md m-4 p-2 text-white"
-					on:click={() => {
-						eel?.play_music(input_value)();
+					on:click={async () => {
+						await eel?.play_music(input_value)();
 					}}
 				>
 					Play Music

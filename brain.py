@@ -20,27 +20,27 @@ funcs = [
 
 
 chat_history = [
-    {"role": "user", "content": "how are you?"},
-    {"role": "Chatbot", "content": "general how are you?"},
-    {"role": "user", "content": "do you like pizza?"},
-    {"role": "Chatbot", "content": "general do you like pizza?"},
-    {"role": "user", "content": "open chrome and tell me about mahatma gandhi."},
+    {"role": "User", "message": "how are you?"},
+    {"role": "Chatbot", "message": "general how are you?"},
+    {"role": "User", "message": "do you like pizza?"},
+    {"role": "Chatbot", "message": "general do you like pizza?"},
+    {"role": "User", "message": "open chrome and tell me about mahatma gandhi."},
     {
         "role": "Chatbot",
-        "content": "open chrome, general tell me about mahatma gandhi.",
+        "message": "open chrome, general tell me about mahatma gandhi.",
     },
-    {"role": "user", "content": "open chrome and firefox"},
-    {"role": "Chatbot", "content": "open chrome, open firefox"},
+    {"role": "User", "message": "open chrome and firefox"},
+    {"role": "Chatbot", "message": "open chrome, open firefox"},
     {
-        "role": "user",
-        "content": "what is today's date and by the way remind me that i have a dancing performance on 5th aug at 11pm",
+        "role": "User",
+        "message": "what is today's date and by the way remind me that i have a dancing performance on 5th aug at 11pm",
     },
     {
         "role": "Chatbot",
-        "content": "general what is today's date, reminder 11:00pm 5th aug  dancing performance",
+        "message": "general what is today's date, reminder 11:00pm 5th aug  dancing performance",
     },
-    {"role": "user", "content": "chat with me."},
-    {"role": "Chatbot", "content": "general chat with me."},
+    {"role": "User", "message": "chat with me."},
+    {"role": "Chatbot", "message": "general chat with me."},
 ]
 
 
@@ -92,7 +92,8 @@ def classify(query: str) -> List[str] | None:
     cmds = [task.strip() for task in cmds]
 
     for task in cmds:
-        task = task.split(" ")[0] + " " + query
+        if (task.split(" ")[0] == "general") or (task.split(" ")[0] == "realtime"):
+            task = task.split(" ")[0] + " " + query
         for func in funcs:
             if task.startswith(func):
                 tasks.append(task)
@@ -103,8 +104,10 @@ def classify(query: str) -> List[str] | None:
             tasks = classify(query)
 
     if not tasks:
-        print("task got empty")
-        tasks = classify(query)
+        # print("task got empty", limit)
+        # limit += 1
+        return ["general" + query]
+        # tasks = classify(query)
 
     if tasks:
         tasks = [task.replace("(", "").replace(")", "") for task in tasks]

@@ -7,9 +7,7 @@
 - Voice initial words skip in audio file
 - Lang translation
 - speech recognition incomplete word frequency lessen
-- classifier crash -> llm exchange
 - always listening
-- predefined keyword classifier
 - fix player
 
 # FEAT
@@ -18,7 +16,6 @@
 
 # UI
 - launching word for app refine natural input
-- in ui add robot, controls, interaction log
 - WAKE WORD
 
 
@@ -27,6 +24,4 @@
 
 
 # PRIORITY IMPL
-- refactor eel structure
 - speech rec in ui
-- change classifier llm to cohere
