@@ -1,8 +1,13 @@
+import os
+
+from googlesearch import search
+from groq import Groq
+from ollama import ChatResponse, chat
+
 from features.base import Base
 
-from ollama import chat
-from ollama import ChatResponse
-from googlesearch import search
+client = Groq(api_key=os.getenv("GROK"))
+
 
 class RealChat(Base):
     def __init__(self, username: str) -> None:
@@ -18,7 +23,8 @@ class RealChat(Base):
         results = list(search(query, advanced=True, num_results=5))
         answer = f"The search result for '{query}' are:\n [start]\n"
         for i in results:
-            if isinstance(i, str): continue
+            if isinstance(i, str):
+                continue
             answer += f"Title: {i.title}\nDescription: {i.description}\n\n"
 
         answer += "[end]"
@@ -26,36 +32,45 @@ class RealChat(Base):
         return answer
 
     def chat(self, query: str) -> str | None:
-        sys_prompt = [{"role": "system", "content" : f"""Hello, I am {self.username}, You are a very accurate and advanced AI chatbot named Cygen which also has real-time up-to-date information from the internet.
+        sys_prompt = [
+            {
+                "role": "system",
+                "content": f"""Hello, I am {self.username}, You are a very accurate and advanced AI chatbot named Cygen which also has real-time up-to-date information from the internet.
                           *** Do not tell time until I ask, do not talk too much, just answer the question.***
                           *** Reply in only English, even if the question is in Hindi, reply in English.***
                           *** Do not provide notes in the output, just answer the question and never mention your training data. ***
-                          """
-                          }]
-        self.chat_history.append({
-            "role": "user",
-            "content": query
-            })
-        self.chat_history.append({"role": "system", "content": self.google_search(query)})
-        response: ChatResponse = chat(model="llama3.2:1b", messages=sys_prompt + self.chat_history)
-        self.chat_history.pop()
-
-        if not response.message.content: return None
-
-        self.chat_history.append(
-        
-            {
-            "role": "assistant",
-            "content": response.message.content
+                          """,
             }
+        ]
+        self.chat_history.append({"role": "user", "content": query})
+        self.chat_history.append(
+            {"role": "system", "content": self.google_search(query)}
         )
+        completion = client.chat.completions.create(
+            model="llama3-70b-8192",
+            messages=sys_prompt + self.chat_history,
+            max_tokens=1024,
+            temperature=0.7,
+            top_p=1,
+            stream=True,
+            stop=None,
+        )
+        answer = ""
+        for chunk in completion:
+            if chunk.choices[0].delta.content:
+                answer += chunk.choices[0].delta.content
+        answer = answer.replace("</s>", "")
 
-        response.message.content = response.message.content.replace("<|start_header_id|>assistant<|end_header_id|>", "").strip()
-        return response.message.content
+        self.chat_history.append({"role": "assistant", "content": answer})
+
+        answer = answer.replace(
+            "<|start_header_id|>assistant<|end_header_id|>", ""
+        ).strip()
+        return answer
 
 
 def cli():
-    chatbot = RealChat('MyName')
+    chatbot = RealChat("MyName")
     while True:
         query = input("You: ")
         print(chatbot.chat(query))
@@ -63,4 +78,3 @@ def cli():
 
 if __name__ == "__main__":
     cli()
-

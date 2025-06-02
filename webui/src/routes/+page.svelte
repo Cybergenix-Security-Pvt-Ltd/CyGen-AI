@@ -1,6 +1,6 @@
 <script lang="ts">
 	let eel = window.eel;
-	let WAKE_WORD = ['cygen', 'sajan', 'sizon', 'sahjan', 'silent'];
+	let WAKE_WORD = ['cygen', 'sajan', 'sizon', 'sahjan', 'silent', 'size', 'sizing'];
 	let input_value = '';
 	$: interaction = '';
 	$: eel?.web_speak(interaction)();
