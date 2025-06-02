@@ -1,6 +1,11 @@
+import os
+
+from groq import Groq
 from ollama import ChatResponse, chat
 
 from .base import Base
+
+client = Groq(api_key=os.getenv("GROK"))
 
 
 class Chat(Base):
@@ -13,7 +18,7 @@ class Chat(Base):
             return True
         return False
 
-    def chat(self, query: str) -> str | None:
+    def chat_v1(self, query: str) -> str | None:
         sys_prompt = [
             {
                 "role": "system",
@@ -37,6 +42,36 @@ class Chat(Base):
         )
 
         return response.message.content
+
+    def chat(self, query: str):
+        sys_prompt = [
+            {
+                "role": "system",
+                "content": f"""Hello, I am {self.username}, You are a very accurate and advanced AI chatbot named Cygen which also has real-time up-to-date information from the internet.
+                          *** Do not tell time until I ask, do not talk too much, just answer the question.***
+                          *** Reply in only English, even if the question is in Hindi, reply in English.***
+                          *** Do not provide notes in the output, just answer the question and never mention your training data. ***
+                          """,
+            }
+        ]
+        self.chat_history.append({"role": "user", "content": query})
+        completion = client.chat.completions.create(
+            model="llama3-70b-8192",
+            messages=sys_prompt + self.chat_history,
+            max_tokens=1024,
+            temperature=0.7,
+            top_p=1,
+            stream=True,
+            stop=None,
+        )
+        answer = ""
+        for chunk in completion:
+            if chunk.choices[0].delta.content:
+                answer += chunk.choices[0].delta.content
+        answer = answer.replace("</s>", "")
+
+        self.chat_history.append({"role": "assistant", "content": answer})
+        return answer
 
     def codegen(self, query: str):
         sys_prompt = [
