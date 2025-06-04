@@ -1,3 +1,4 @@
+import asyncio
 import logging
 
 from brain import classify
@@ -34,7 +35,9 @@ def web_speak(query: str):
     speak(query)
 
 
-def ask(query: str):
+def ask(query: str | None) -> str | None:
+    if not query:
+        return None
     logging.info(f"main classifier: {query}")
     tags = classify(query)
     if not tags:
@@ -53,8 +56,13 @@ def ask(query: str):
             reminder.set_reminder(stag)
             return f"Reminder added of {stag}"
         elif image_manager.check_trigger(tag):
-            logging.info(f"Analyzing Image")
-            return image_manager.read_img(get_image(), stag)
+            if " vision" in tags:
+                logging.info(f"Analyzing Image")
+                return image_manager.read_img(get_image(), stag)
+            else:
+                logging.info(f"Generating Image")
+                asyncio.run(image_manager.generate_images(stag))
+                return "Here are some of the images"
 
         elif system.check_trigger(tag):
             if " mute" in stag:

@@ -15,12 +15,12 @@ class AppLauncher(Base):
 
     def gsearch(self, query: str) -> None:
         os.system(
-            f"firefox 'https://www.google.com/search?client=firefox-b-e&q={query.replace(" ", "+")}'"
+            f"firefox 'https://www.google.com/search?client=firefox-b-e&q={query.replace(" ", "+")}' &"
         )
 
     def ytsearch(self, query: str) -> None:
         os.system(
-            f"firefox 'https://www.youtube.com/results?search_query={query.replace(" ", "+")}'"
+            f"firefox 'https://www.youtube.com/results?search_query={query.replace(" ", "+")}' &"
         )
 
     def play_music(self, query: str):

@@ -1,6 +1,6 @@
 <script lang="ts">
 	let eel = window.eel;
-	let WAKE_WORD = ['cygen', 'sajan', 'sizon', 'sahjan', 'silent', 'size', 'sizing'];
+	let WAKE_WORD = ['cygen', 'sajan', 'sizon', 'sahjan', 'silent', 'size', 'sizing', 'and'];
 	let input_value = '';
 	$: interaction = '';
 	$: eel?.web_speak(interaction)();
@@ -42,10 +42,17 @@
 					.filter((word) => !WAKE_WORD.includes(word.toLowerCase()))
 					.join(' ')
 					.trim();
+				speech = speech
+					.split(' ')
+					.filter((word) => !WAKE_WORD.includes(word.toLowerCase()))
+					.join(' ')
+					.trim();
 				window.rec.stop();
 				if (speech) {
 					interaction = await eel.ask(speech.toLowerCase())();
 					speech = '';
+					window.rec.start();
+				} else {
 					window.rec.start();
 				}
 			} else {
@@ -61,7 +68,7 @@
 			id="main"
 			class="flex items-center justify-center border-b border-blue-700 shadow-blue-600 shadow-md"
 		>
-			<div class="relative w-[96%]">
+			<div class="relative w-[100%]">
 				<canvas id="canvas3d" />
 				{#if interaction}
 					<div
@@ -114,10 +121,10 @@
 						bind:value={input_value}
 						on:keydown={async (e) => {
 							if (e.key === 'Enter') {
-								// @ts-expect-error html element
-								interaction = await eel?.ask(e.target.value)();
-								// interaction_logs = [...interaction_logs, out];
+								let temp_input = input_value;
 								input_value = '';
+								interaction = await eel?.ask(temp_input)();
+								// interaction_logs = [...interaction_logs, out];
 							}
 						}}
 					/>
@@ -139,6 +146,16 @@
 				>
 					Ask llm
 				</button>
+
+				<button
+					class="bg-black border-white border rounded-md m-4 p-2 text-white"
+					on:click={async () => {
+						interaction = await eel?.generate_image(input_value)();
+					}}
+				>
+					Generate Image
+				</button>
+
 				<button
 					class="bg-black border-white border rounded-md m-4 p-2 text-white"
 					on:click={async () => {
