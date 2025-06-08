@@ -1,13 +1,9 @@
-# TASKS
-- Reminder -> bg invokation
-- UI
-
-
 # ISSUES
-- Lang translation
+- Reminder -> bg invokation
 
 # FEAT
 - add screenshot feature
 - add exit 
-- image generation 
-- image classifier integration in ui
+- image classifier
+- Lang translation
+- Google Calander

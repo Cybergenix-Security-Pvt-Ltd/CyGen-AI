@@ -1,6 +1,6 @@
 <script lang="ts">
 	let eel = window.eel;
-	let WAKE_WORD = ['cygen', 'sajan', 'sizon', 'sahjan', 'silent', 'size', 'sizing', 'and'];
+	let WAKE_WORD = ['cygen', 'sajan', 'sizon', 'sahjan', 'silent', 'size', 'sizing', ' and '];
 	let input_value = '';
 	$: interaction = '';
 	$: eel?.web_speak(interaction)();
@@ -20,21 +20,21 @@
 
 		recApi ? null : alert("SpeechRecognition won't work for you");
 
-		window.rec = new recApi();
-		window.rec.lang = 'en-IN';
+		let recorder = new recApi();
+		recorder.lang = 'en-IN';
 		// rec.continuous = true;
-		window.rec.interimResults = true;
+		recorder.interimResults = true;
 
-		window.rec.onresult = (e) => {
+		recorder.onresult = (e: { results: { transcript: string }[][] }) => {
 			speech = Array.from(e.results)
 				.map((result) => result[0].transcript)
 				.join('');
 			console.log(speech);
 		};
 
-		window.rec.start();
+		recorder.start();
 
-		window.rec.addEventListener('end', async () => {
+		recorder.addEventListener('end', async () => {
 			if (WAKE_WORD.some((word) => speech.toLowerCase().includes(word))) {
 				console.log('wake word triggered', speech);
 				speech = speech
@@ -47,16 +47,16 @@
 					.filter((word) => !WAKE_WORD.includes(word.toLowerCase()))
 					.join(' ')
 					.trim();
-				window.rec.stop();
+				recorder.stop();
 				if (speech) {
 					interaction = await eel.ask(speech.toLowerCase())();
 					speech = '';
-					window.rec.start();
+					recorder.start();
 				} else {
-					window.rec.start();
+					recorder.start();
 				}
 			} else {
-				window.rec.start();
+				recorder.start();
 			}
 		});
 	};
